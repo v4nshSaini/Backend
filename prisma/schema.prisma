@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id                   Int      @id @default(autoincrement())
+  firstName            String
+  middleName           String?
+  lastName             String
+  email                String   @unique
+  phone                String?
+  dob                  DateTime?
+  currentAddress       String?
+  permanentAddress     String?
+  maritalStatus        String?
+  bloodGroup           String?
+  physicallyHandicapped Boolean @default(false)
+  nationality          String?
+  role                 String?
+  password             String
+
+  departmentId Int?
+  locationId   Int?
+
+  managedDept Department? @relation("Manager")
+  department Department? @relation(fields: [departmentId], references: [id])
+  location   Location?   @relation(fields: [locationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime?
+  status    Boolean  @default(true)
+  isDeleted Boolean  @default(false)
+
+  attendances Attendance[]
+  educations  Education[] 
+  experiences Experience[]    
+}
+
+model Attendance {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  date       DateTime @default(now())
+  checkIn    DateTime?
+  checkOut   DateTime?
+
+  employee   Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Department {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  managerId   Int? @unique 
+  manager     Employee?  @relation("Manager", fields: [managerId], references: [id])
+  employees   Employee[]
+}
+
+model Location {
+  id        Int        @id @default(autoincrement())
+  name      String
+  employees Employee[]
+}
+
+model Education {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  degree      String
+  institute   String
+  year        Int
+
+  employee    Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Experience {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  company     String
+  role        String
+  years       Float
+
+  employee    Employee @relation(fields: [employeeId], references: [id])
+}
